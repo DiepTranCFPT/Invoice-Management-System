@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - Invoice Management System</title>
+    
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem 0;
+        }
+        .register-card {
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            overflow: hidden;
+            width: 100%;
+            max-width: 500px;
+        }
+        .register-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 2rem;
+            text-align: center;
+        }
+        .register-body {
+            padding: 2rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="register-card">
+        <div class="register-header">
+            <h3><i class="fas fa-user-plus me-2"></i>Create Account</h3>
+            <p class="mb-0">Join our Invoice Management System</p>
+        </div>
+        <div class="register-body">
+            <form id="registerForm" action="#" method="post">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="username" class="form-label">Username</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <label for="fullName" class="form-label">Full Name</label>
+                    <input type="text" class="form-control" id="fullName" name="fullName" required>
+                </div>
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text" class="form-control" id="phone" name="phone">
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <label for="role" class="form-label">Role</label>
+                        <select class="form-select" id="role" name="role" required>
+                            <option value="USER">User</option>
+                            <option value="AGENT">Agent</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="mb-3" id="agentDiv">
+                    <label for="agentId" class="form-label">Select Agent</label>
+                    <select class="form-select" id="agentId" name="agentId">
+                        <option value="">Select an agent...</option>
+                        <option th:each="agent : ${agents}" th:value="${agent.id}" th:text="${agent.name}"></option>
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" class="form-control" id="password" name="password" required>
+                </div>
+                <div class="d-grid">
+                    <button type="submit" class="btn btn-primary btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Register
+                    </button>
+                </div>
+            </form>
+            
+            <div class="text-center mt-3">
+                <p class="mb-0">Already have an account? <a th:href="@{/login}" class="text-decoration-none">Sign in here</a></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script>
+        $(document).ready(function() {
+            // Show/hide agent selection based on role
+            $('#role').on('change', function() {
+                if ($(this).val() === 'USER') {
+                    $('#agentDiv').show();
+                    $('#agentId').prop('required', true);
+                } else {
+                    $('#agentDiv').hide();
+                    $('#agentId').prop('required', false);
+                }
+            });
+            
+            $('#registerForm').on('submit', function(e) {
+                e.preventDefault();
+                
+                const registerData = {
+                    username: $('#username').val(),
+                    email: $('#email').val(),
+                    fullName: $('#fullName').val(),
+                    phone: $('#phone').val(),
+                    role: $('#role').val(),
+                    agentId: $('#agentId').val() || null,
+                    password: $('#password').val()
+                };
+                
+                $.ajax({
+                    url: '/api/auth/signup',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(registerData),
+                    success: function(response) {
+                        alert('Registration successful! Please wait for approval.');
+                        window.location.href = '/login';
+                    },
+                    error: function(xhr) {
+                        const response = JSON.parse(xhr.responseText);
+                        alert(response.message || 'Registration failed');
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>
